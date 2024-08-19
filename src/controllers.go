@@ -13,13 +13,13 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func getAllUsers(w http.ResponseWriter, r *http.Request) {
+func getAllOrders(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	// Get a handle for your collection
-	userCollection := db().Database("your_database").Collection("your_collection")
+	orderCollection := db().Database("ffc_database").Collection("orders")
 
 	var results []bson.M
-	cursor, err := userCollection.Find(context.TODO(), bson.D{})
+	cursor, err := orderCollection.Find(context.TODO(), bson.D{})
 	if err != nil {
 		fmt.Println(err)
 	}
