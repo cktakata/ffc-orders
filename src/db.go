@@ -16,7 +16,7 @@ type user struct {
 }
 
 func db() *mongo.Client {
-	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017") // Connect to //MongoDB
+	clientOptions := options.Client().ApplyURI("mongodb://admin:password@localhost:27017") // Connect to //MongoDB
 	client, err := mongo.Connect(context.TODO(), clientOptions)
 	if err != nil {
 		log.Fatal(err)
