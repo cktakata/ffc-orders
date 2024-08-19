@@ -14,15 +14,6 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-type Order struct {
-	Store    string `bson:"store"`
-	Name     string `bson:"name"`
-	Date     string `bson:"date"`
-	Value    string `bson:"value"`
-	PrevHash string `bson:"prevHash"`
-	Hash     string `bson:"hash"`
-}
-
 func getAllOrders(w http.ResponseWriter, r *http.Request) {
 	collectionName := os.Getenv("COLLECTION_NAME")
 	w.Header().Set("Content-Type", "application/json")

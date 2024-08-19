@@ -17,6 +17,15 @@ type user struct {
 	Age  int    `json:"age"`
 }
 
+type Order struct {
+	Store    string `bson:"store"`
+	Name     string `bson:"name"`
+	Date     string `bson:"date"`
+	Value    string `bson:"value"`
+	PrevHash string `bson:"prevHash"`
+	Hash     string `bson:"hash"`
+}
+
 func db() *mongo.Client {
 	err := godotenv.Load()
 	if err != nil {
