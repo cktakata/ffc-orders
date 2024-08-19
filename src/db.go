@@ -11,6 +11,8 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
+var Db *mongo.Client
+
 type user struct {
 	Name string `json:"name"`
 	City string `json:"city"`

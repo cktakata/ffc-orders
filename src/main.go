@@ -8,6 +8,7 @@ import (
 )
 
 func main() {
+	Db = db()
 	route := mux.NewRouter()
 	s := route.PathPrefix("/api").Subrouter() //Base Path
 	// Routes

@@ -18,7 +18,7 @@ func getAllOrders(w http.ResponseWriter, r *http.Request) {
 	collectionName := os.Getenv("COLLECTION_NAME")
 	w.Header().Set("Content-Type", "application/json")
 	// Get a handle for your collection
-	orderCollection := db().Database("ffc_database").Collection(collectionName)
+	orderCollection := Db.Database("ffc_database").Collection(collectionName)
 
 	var results []bson.M
 	cursor, err := orderCollection.Find(context.TODO(), bson.D{})
@@ -42,7 +42,7 @@ func getOrder(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Get a handle for your collection
-	orderCollection := db().Database("ffc_database").Collection(collectionName)
+	orderCollection := Db.Database("ffc_database").Collection(collectionName)
 
 	var result Order
 	err = orderCollection.FindOne(context.TODO(), bson.D{{"_id", _id}}).Decode(&result)
