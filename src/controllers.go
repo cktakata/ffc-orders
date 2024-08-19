@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/gorilla/mux"
 	"go.mongodb.org/mongo-driver/bson"
@@ -13,10 +14,20 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
+type Order struct {
+	Store    string `bson:"store"`
+	Name     string `bson:"name"`
+	Date     string `bson:"date"`
+	Value    string `bson:"value"`
+	PrevHash string `bson:"prevHash"`
+	Hash     string `bson:"hash"`
+}
+
 func getAllOrders(w http.ResponseWriter, r *http.Request) {
+	collectionName := os.Getenv("COLLECTION_NAME")
 	w.Header().Set("Content-Type", "application/json")
 	// Get a handle for your collection
-	orderCollection := db().Database("ffc_database").Collection("orders")
+	orderCollection := db().Database("ffc_database").Collection(collectionName)
 
 	var results []bson.M
 	cursor, err := orderCollection.Find(context.TODO(), bson.D{})
@@ -28,6 +39,26 @@ func getAllOrders(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 	json.NewEncoder(w).Encode(results) // returns a Map containing //mongodb document
+}
+
+func getOrder(w http.ResponseWriter, r *http.Request) {
+	collectionName := os.Getenv("COLLECTION_NAME")
+	w.Header().Set("Content-Type", "application/json")
+	params := mux.Vars(r)["id"]                   //get Parameter value as string
+	_id, err := primitive.ObjectIDFromHex(params) // convert params to //mongodb Hex ID
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+
+	// Get a handle for your collection
+	orderCollection := db().Database("ffc_database").Collection(collectionName)
+
+	var result Order
+	err = orderCollection.FindOne(context.TODO(), bson.D{{"_id", _id}}).Decode(&result)
+	if err != nil {
+		log.Fatal(err)
+	}
+	json.NewEncoder(w).Encode(result) // return number of //documents deleted
 }
 
 func createProfile(w http.ResponseWriter, r *http.Request) {

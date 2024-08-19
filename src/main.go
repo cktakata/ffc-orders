@@ -12,6 +12,7 @@ func main() {
 	s := route.PathPrefix("/api").Subrouter() //Base Path
 	// Routes
 	s.HandleFunc("/getAllOrders", getAllOrders).Methods("GET")
+	s.HandleFunc("/getOrder/{id}", getOrder).Methods("GET")
 
 	s.HandleFunc("/createProfile", createProfile).Methods("POST")
 	s.HandleFunc("/getUserProfile", getUserProfile).Methods("POST")
