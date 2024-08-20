@@ -16,5 +16,6 @@ func main() {
 	s.HandleFunc("/getOrder/{id}", getOrder).Methods("GET")
 	s.HandleFunc("/addOrder", addOrder).Methods("POST")
 	s.HandleFunc("/chargeBackOrder", chargeBackOrder).Methods("POST")
+	s.HandleFunc("/validateOrders", isValidOrders).Methods("GET")
 	log.Fatal(http.ListenAndServe(":8000", s)) // Run Server
 }

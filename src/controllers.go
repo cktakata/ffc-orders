@@ -7,12 +7,18 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/gorilla/mux"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
+
+type Response struct {
+	Message string `json:"message"`
+	IsValid bool   `json:"isValid"`
+}
 
 func getAllOrders(w http.ResponseWriter, r *http.Request) {
 	collectionName := os.Getenv("COLLECTION_NAME")
@@ -44,11 +50,25 @@ func getOrder(w http.ResponseWriter, r *http.Request) {
 	orderCollection := Db.Database("ffc_database").Collection(collectionName)
 
 	var result bson.M
-	err = orderCollection.FindOne(context.TODO(), bson.D{{"_id", _id}}).Decode(&result)
+	err = orderCollection.FindOne(context.TODO(), bson.D{{Key: "_id", Value: _id}}).Decode(&result)
 	if err != nil {
 		log.Fatal(err)
 	}
 	json.NewEncoder(w).Encode(&result) // return order
+}
+
+func createOrder(prevOrder bson.M, order OrderSchema) Order {
+	store := os.Getenv("COLLECTION_NAME")
+	newOrder := Order{
+		Store:    store + "_" + time.Now().Format("20060102"),
+		Name:     order.Name,
+		Date:     time.Now().Format("2006-01-02 15:04:05"),
+		Value:    order.Value,
+		PrevHash: prevOrder["hash"].(string),
+		Hash:     "",
+	}
+	newOrder.Hash = calculateHash(newOrder)
+	return newOrder
 }
 
 func getLatestOrder() bson.M {
@@ -56,7 +76,7 @@ func getLatestOrder() bson.M {
 	// Get a handle for your collection
 	orderCollection := db().Database("ffc_database").Collection(collectionName)
 	// Define an options object to sort by timestamp in descending order
-	findOptions := options.FindOne().SetSort(bson.D{{"timestamp", -1}})
+	findOptions := options.FindOne().SetSort(bson.D{{Key: "_id", Value: -1}})
 
 	// Find the latest record
 	var result bson.M
@@ -101,7 +121,7 @@ func chargeBackOrder(w http.ResponseWriter, r *http.Request) {
 	orderCollection := db().Database("ffc_database").Collection(collectionName)
 	latestOrder := getLatestOrder()
 
-	if order.Value == 0 {
+	if order.Value > 0 {
 		order.Value = latestOrder["value"].(float64) * -1
 	}
 
@@ -111,24 +131,50 @@ func chargeBackOrder(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 	json.NewEncoder(w).Encode(insertResult.InsertedID) // return the //mongodb ID of generated document
+
 }
 
-/*
-func validateOrders() {
-	bc := newBlockchain()
+func isValidOrders(w http.ResponseWriter, r *http.Request) {
+	collectionName := os.Getenv("COLLECTION_NAME")
+	w.Header().Set("Content-Type", "application/json")
+	// Get a handle for your collection
+	orderCollection := Db.Database("ffc_database").Collection(collectionName)
 
-	bc.addBlock("First Block after Genesis")
-	bc.addBlock("Second Block after Genesis")
+	// Find documents in the collection
+	cursor, err := orderCollection.Find(context.TODO(), bson.D{{}})
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer cursor.Close(context.TODO())
 
-	for _, block := range bc.Blocks {
-		fmt.Printf("Index: %d\n", block.Index)
-		fmt.Printf("Timestamp: %s\n", block.Timestamp)
-		fmt.Printf("Data: %s\n", block.Data)
-		fmt.Printf("PrevHash: %s\n", block.PrevHash)
-		fmt.Printf("Hash: %s\n", block.Hash)
-		fmt.Println()
+	// Retrieve all orders into a slice
+	var orders []Order
+	if err = cursor.All(context.TODO(), &orders); err != nil {
+		log.Fatal(err)
 	}
 
-	fmt.Printf("Blockchain valid: %v\n", bc.isValid())
+	// Iterate through the slice using a regular for loop
+	orderError := "No error"
+	isValid := true
+	for i := 1; i < len(orders); i++ {
+		currentBlock := orders[i]
+		prevBlock := orders[i-1]
+		// Check if the current block's hash is correct
+		if currentBlock.Hash != calculateHash(currentBlock) {
+			orderError = currentBlock.Date + " " + currentBlock.Name + " " + fmt.Sprintf("%f", currentBlock.Value)
+			isValid = false
+		}
+
+		// Check if the current block's previous hash matches the previous block's hash
+		if currentBlock.PrevHash != prevBlock.Hash {
+			orderError = currentBlock.Date + " " + currentBlock.Name + " " + fmt.Sprintf("%f", currentBlock.Value)
+			isValid = false
+		}
+	}
+
+	response := Response{
+		Message: orderError,
+		IsValid: isValid,
+	}
+	json.NewEncoder(w).Encode(response) // returns a Map containing //mongodb document
 }
-*/

@@ -15,12 +15,12 @@ import (
 var Db *mongo.Client
 
 type Order struct {
-	store    string  `bson:"store"`
-	name     string  `bson:"name"`
-	date     string  `bson:"date"`
-	value    float64 `bson:"value"`
-	prevHash string  `bson:"prevHash"`
-	hash     string  `bson:"hash"`
+	Store    string  `bson:"store"`
+	Name     string  `bson:"name"`
+	Date     string  `bson:"date"`
+	Value    float64 `bson:"value"`
+	PrevHash string  `bson:"prevHash"`
+	Hash     string  `bson:"hash"`
 }
 
 func db() *mongo.Client {
@@ -74,6 +74,7 @@ func db() *mongo.Client {
 		// Get a handle for your collection
 		orderCollection := database.Collection(collectionName)
 		order := createGenesisOrder()
+		fmt.Printf("Genesis %+v\n", order)
 		insertResult, err := orderCollection.InsertOne(context.TODO(), order)
 		if err != nil {
 			log.Fatal(err)

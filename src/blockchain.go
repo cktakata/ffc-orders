@@ -12,28 +12,16 @@ type Blockchain struct {
 func createGenesisOrder() Order {
 	store := os.Getenv("COLLECTION_NAME")
 	newOrder := Order{
-		store:    store + "_" + time.Now().Format("20060102"),
-		name:     store,
-		date:     time.Now().Format("2006-01-02 15:04:05"),
-		value:    0,
-		prevHash: "",
-		hash:     "",
+		Store:    store + "_" + time.Now().Format("20060102"),
+		Name:     store,
+		Date:     time.Now().Format("2006-01-02 15:04:05"),
+		Value:    0,
+		PrevHash: "",
+		Hash:     "",
 	}
-	newOrder.hash = calculateHash(newOrder)
+	newOrder.Hash = calculateHash(newOrder)
 	return newOrder
 }
-
-// func (bc *Blockchain) addBlock(data string) {
-// 	prevBlock := bc.Blocks[len(bc.Blocks)-1]
-// 	newBlock := createBlock(prevBlock, data)
-// 	bc.Blocks = append(bc.Blocks, newBlock)
-// }
-
-// func newBlockchain() *Blockchain {
-// 	genesisBlock := createGenesisBlock()
-// 	genesisBlock.Hash = calculateHash(genesisBlock)
-// 	return &Blockchain{[]Block{genesisBlock}}
-// }
 
 /*
 func (bc *Blockchain) isValid() bool {
