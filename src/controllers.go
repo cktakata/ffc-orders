@@ -134,3 +134,23 @@ func deleteProfile(w http.ResponseWriter, r *http.Request) {
 	}
 	json.NewEncoder(w).Encode(res.DeletedCount) // return number of //documents deleted
 }
+
+/*
+func validateOrders() {
+	bc := newBlockchain()
+
+	bc.addBlock("First Block after Genesis")
+	bc.addBlock("Second Block after Genesis")
+
+	for _, block := range bc.Blocks {
+		fmt.Printf("Index: %d\n", block.Index)
+		fmt.Printf("Timestamp: %s\n", block.Timestamp)
+		fmt.Printf("Data: %s\n", block.Data)
+		fmt.Printf("PrevHash: %s\n", block.PrevHash)
+		fmt.Printf("Hash: %s\n", block.Hash)
+		fmt.Println()
+	}
+
+	fmt.Printf("Blockchain valid: %v\n", bc.isValid())
+}
+*/

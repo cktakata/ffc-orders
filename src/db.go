@@ -20,12 +20,12 @@ type user struct {
 }
 
 type Order struct {
-	Store    string `bson:"store"`
-	Name     string `bson:"name"`
-	Date     string `bson:"date"`
-	Value    string `bson:"value"`
-	PrevHash string `bson:"prevHash"`
-	Hash     string `bson:"hash"`
+	Store    string  `bson:"store"`
+	Name     string  `bson:"name"`
+	Date     string  `bson:"date"`
+	Value    float64 `bson:"value"`
+	PrevHash string  `bson:"prevHash"`
+	Hash     string  `bson:"hash"`
 }
 
 func db() *mongo.Client {
@@ -75,6 +75,7 @@ func db() *mongo.Client {
 			log.Fatal(err)
 		}
 		fmt.Printf("Collection %s created.\n", collectionName)
+		createGenesisOrder()
 	}
 
 	return client
