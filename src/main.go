@@ -14,10 +14,7 @@ func main() {
 	// Routes
 	s.HandleFunc("/getAllOrders", getAllOrders).Methods("GET")
 	s.HandleFunc("/getOrder/{id}", getOrder).Methods("GET")
-
-	s.HandleFunc("/createProfile", createProfile).Methods("POST")
-	s.HandleFunc("/getUserProfile", getUserProfile).Methods("POST")
-	s.HandleFunc("/updateProfile", updateProfile).Methods("PUT")
-	s.HandleFunc("/deleteProfile/{id}", deleteProfile).Methods("DELETE")
+	s.HandleFunc("/addOrder", addOrder).Methods("POST")
+	s.HandleFunc("/chargeBackOrder", chargeBackOrder).Methods("POST")
 	log.Fatal(http.ListenAndServe(":8000", s)) // Run Server
 }

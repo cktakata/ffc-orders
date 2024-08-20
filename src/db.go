@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
 	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -12,12 +13,6 @@ import (
 )
 
 var Db *mongo.Client
-
-type user struct {
-	Name string `json:"name"`
-	City string `json:"city"`
-	Age  int    `json:"age"`
-}
 
 type Order struct {
 	Store    string  `bson:"store"`
@@ -47,6 +42,7 @@ func db() *mongo.Client {
 	if err != nil {
 		log.Fatal(err)
 	}
+	fmt.Println("Current date and time:", time.Now())
 	fmt.Println("Connected to MongoDB!")
 
 	// Get a handle for your database
@@ -75,7 +71,14 @@ func db() *mongo.Client {
 			log.Fatal(err)
 		}
 		fmt.Printf("Collection %s created.\n", collectionName)
-		createGenesisOrder()
+		// Get a handle for your collection
+		orderCollection := database.Collection(collectionName)
+		order := createGenesisOrder()
+		insertResult, err := orderCollection.InsertOne(context.TODO(), order)
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Printf("Genesis block added. %v\n", insertResult)
 	}
 
 	return client

@@ -49,90 +49,69 @@ func getOrder(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	json.NewEncoder(w).Encode(result) // return number of //documents deleted
+	json.NewEncoder(w).Encode(result) // return order
 }
 
-func createProfile(w http.ResponseWriter, r *http.Request) {
+func getLatestOrder() Order {
+	collectionName := os.Getenv("COLLECTION_NAME")
+	// Get a handle for your collection
+	orderCollection := db().Database("ffc_database").Collection(collectionName)
+	// Define an options object to sort by timestamp in descending order
+	findOptions := options.FindOne().SetSort(bson.D{{"timestamp", -1}})
+
+	// Find the latest record
+	var result Order
+	err := orderCollection.FindOne(context.TODO(), bson.D{}, findOptions).Decode(&result)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return result
+}
+
+func addOrder(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json") // for adding       //Content-type
-	var person user
-	err := json.NewDecoder(r.Body).Decode(&person) // storing in person   //variable of type user
+	var order OrderSchema
+	err := json.NewDecoder(r.Body).Decode(&order) // storing in order
 	if err != nil {
 		fmt.Print(err)
 	}
 
+	collectionName := os.Getenv("COLLECTION_NAME")
 	// Get a handle for your collection
-	userCollection := db().Database("your_database").Collection("your_collection")
+	orderCollection := db().Database("ffc_database").Collection(collectionName)
+	latestOrder := getLatestOrder()
 
-	insertResult, err := userCollection.InsertOne(context.TODO(), person)
+	newOrder := createOrder(latestOrder, order)
+	insertResult, err := orderCollection.InsertOne(context.TODO(), newOrder)
 	if err != nil {
 		log.Fatal(err)
 	}
 	json.NewEncoder(w).Encode(insertResult.InsertedID) // return the //mongodb ID of generated document
 }
 
-func getUserProfile(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	var body user
-	e := json.NewDecoder(r.Body).Decode(&body)
-	if e != nil {
-		fmt.Print(e)
-	}
-	var result primitive.M //  an unordered representation of a BSON //document which is a Map
-
-	// Get a handle for your collection
-	userCollection := db().Database("your_database").Collection("your_collection")
-
-	err := userCollection.FindOne(context.TODO(), bson.D{{"name", body.Name}}).Decode(&result)
+func chargeBackOrder(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json") // for adding       //Content-type
+	var order OrderSchema
+	err := json.NewDecoder(r.Body).Decode(&order) // storing in order
 	if err != nil {
-		fmt.Println(err)
+		fmt.Print(err)
 	}
-	json.NewEncoder(w).Encode(result) // returns a Map containing //mongodb document
-}
 
-func updateProfile(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	type updateBody struct {
-		Name string `json:"name"` //value that has to be matched
-		City string `json:"city"` // value that has to be modified
-	}
-	var body updateBody
-	e := json.NewDecoder(r.Body).Decode(&body)
-	if e != nil {
-		fmt.Print(e)
-	}
-	filter := bson.D{{"name", body.Name}} // converting value to BSON after := options.After         // for returning updated document
-	after := options.After                // for returning updated document
-	returnOpt := options.FindOneAndUpdateOptions{
-		ReturnDocument: &after,
-	}
-	update := bson.D{{"$set", bson.D{{"city", body.City}}}}
-
+	collectionName := os.Getenv("COLLECTION_NAME")
 	// Get a handle for your collection
-	userCollection := db().Database("your_database").Collection("your_collection")
+	orderCollection := db().Database("ffc_database").Collection(collectionName)
+	latestOrder := getLatestOrder()
 
-	updateResult := userCollection.FindOneAndUpdate(context.TODO(), filter, update, &returnOpt)
-	var result primitive.M
-	_ = updateResult.Decode(&result)
-	json.NewEncoder(w).Encode(result)
-}
-
-func deleteProfile(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	params := mux.Vars(r)["id"]                   //get Parameter value as string
-	_id, err := primitive.ObjectIDFromHex(params) // convert params to //mongodb Hex ID
-	if err != nil {
-		fmt.Printf(err.Error())
+	if order.Value == 0 {
+		order.Value = latestOrder.Value * -1
 	}
-	opts := options.Delete().SetCollation(&options.Collation{}) // to //specify language-specific rules for string comparison, such as //rules for lettercase
 
-	// Get a handle for your collection
-	userCollection := db().Database("your_database").Collection("your_collection")
-
-	res, err := userCollection.DeleteOne(context.TODO(), bson.D{{"_id", _id}}, opts)
+	newOrder := createOrder(latestOrder, order)
+	insertResult, err := orderCollection.InsertOne(context.TODO(), newOrder)
 	if err != nil {
 		log.Fatal(err)
 	}
-	json.NewEncoder(w).Encode(res.DeletedCount) // return number of //documents deleted
+	json.NewEncoder(w).Encode(insertResult.InsertedID) // return the //mongodb ID of generated document
 }
 
 /*
