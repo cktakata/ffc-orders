@@ -15,12 +15,12 @@ import (
 var Db *mongo.Client
 
 type Order struct {
-	Store    string  `bson:"store"`
-	Name     string  `bson:"name"`
-	Date     string  `bson:"date"`
-	Value    float64 `bson:"value"`
-	PrevHash string  `bson:"prevHash"`
-	Hash     string  `bson:"hash"`
+	store    string  `bson:"store"`
+	name     string  `bson:"name"`
+	date     string  `bson:"date"`
+	value    float64 `bson:"value"`
+	prevHash string  `bson:"prevHash"`
+	hash     string  `bson:"hash"`
 }
 
 func db() *mongo.Client {

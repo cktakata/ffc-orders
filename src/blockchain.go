@@ -12,14 +12,14 @@ type Blockchain struct {
 func createGenesisOrder() Order {
 	store := os.Getenv("COLLECTION_NAME")
 	newOrder := Order{
-		Store:    store + "_" + time.Now().Format("20060102"),
-		Name:     store,
-		Date:     time.Now().Format("2006-01-02 15:04:05"),
-		Value:    0,
-		PrevHash: "",
-		Hash:     "",
+		store:    store + "_" + time.Now().Format("20060102"),
+		name:     store,
+		date:     time.Now().Format("2006-01-02 15:04:05"),
+		value:    0,
+		prevHash: "",
+		hash:     "",
 	}
-	newOrder.Hash = calculateHash(newOrder)
+	newOrder.hash = calculateHash(newOrder)
 	return newOrder
 }
 

@@ -40,19 +40,18 @@ func getOrder(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		fmt.Println(err.Error())
 	}
-
 	// Get a handle for your collection
 	orderCollection := Db.Database("ffc_database").Collection(collectionName)
 
-	var result Order
+	var result bson.M
 	err = orderCollection.FindOne(context.TODO(), bson.D{{"_id", _id}}).Decode(&result)
 	if err != nil {
 		log.Fatal(err)
 	}
-	json.NewEncoder(w).Encode(result) // return order
+	json.NewEncoder(w).Encode(&result) // return order
 }
 
-func getLatestOrder() Order {
+func getLatestOrder() bson.M {
 	collectionName := os.Getenv("COLLECTION_NAME")
 	// Get a handle for your collection
 	orderCollection := db().Database("ffc_database").Collection(collectionName)
@@ -60,7 +59,7 @@ func getLatestOrder() Order {
 	findOptions := options.FindOne().SetSort(bson.D{{"timestamp", -1}})
 
 	// Find the latest record
-	var result Order
+	var result bson.M
 	err := orderCollection.FindOne(context.TODO(), bson.D{}, findOptions).Decode(&result)
 	if err != nil {
 		log.Fatal(err)
@@ -103,7 +102,7 @@ func chargeBackOrder(w http.ResponseWriter, r *http.Request) {
 	latestOrder := getLatestOrder()
 
 	if order.Value == 0 {
-		order.Value = latestOrder.Value * -1
+		order.Value = latestOrder["value"].(float64) * -1
 	}
 
 	newOrder := createOrder(latestOrder, order)
