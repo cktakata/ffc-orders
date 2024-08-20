@@ -10,7 +10,22 @@ services:
       - ./mongo-seed:/docker-entrypoint-initdb.d
     ports:
       - '27017:27017'
+  ffc-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: fcc-app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - ffc-mongo
+    environment:
+      - MONGO_URI=mongodb://admin:password@mongo:27017
+    networks:
+      - ffc_internal
 networks:
   ffc_internal:
+    driver: 
+      bridge
     external:
       name: ffc_internal
