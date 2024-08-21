@@ -1,5 +1,5 @@
 # Use the official Go image from the Docker Hub
-FROM golang:1.23 as build
+FROM golang:1.23.0-bookworm as build
 
 # Set the Current Working Directory inside the container
 WORKDIR /app
@@ -12,12 +12,15 @@ RUN go mod download
 
 # Copy the source code into the container
 COPY . .
+COPY .env /app/main/
+
+RUN ls
 
 # Build the Go app
 RUN go build -o main .
 
 # Start from a small image to reduce size
-FROM debian:bullseye-slim
+FROM debian:bookworm-slim
 
 # Install required packages
 RUN apt-get update && apt-get install -y ca-certificates && apt-get clean
@@ -34,5 +37,5 @@ COPY --from=build /app/main /app/main
 EXPOSE 8000
 
 # Command to run the executable
-# ENTRYPOINT ["/app/main"]
-CMD ["./main"]
+RUN chmod +x /app/main
+CMD ["./app/main"]
