@@ -167,6 +167,7 @@ func isValidOrders(w http.ResponseWriter, r *http.Request) {
 		collectionName = os.Getenv("COLLECTION_NAME")
 	}
 	w.Header().Set("Content-Type", "application/json")
+
 	// Get a handle for your collection
 	orderCollection := Db.Database("ffc_database").Collection(collectionName)
 
