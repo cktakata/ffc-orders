@@ -27,8 +27,9 @@ func db() *mongo.Client {
 	err := godotenv.Load()
 
 	collectionName := os.Getenv("COLLECTION_NAME")
+	mongouri := os.Getenv("MONGO_URI")
 
-	clientOptions := options.Client().ApplyURI("mongodb://admin:password@ffc-mongo:27017") // Connect to //MongoDB
+	clientOptions := options.Client().ApplyURI(mongouri) // Connect to //MongoDB
 	client, err := mongo.Connect(context.TODO(), clientOptions)
 	if err != nil {
 		log.Fatal(err)
