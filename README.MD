@@ -9,16 +9,19 @@ This _Orders Module_ will be used to manage orders from each client at each stor
 
 - List all Orders:
 ```
-curl --location 'http://localhost:8000/api/getAllOrders'
+curl --location 'http://localhost:8000/api/getAllOrders' \
+--header 'collection: store'
 ```
 - Get Specific Order:
 ```
-curl --location 'http://localhost:8000/api/getOrder/66c4db8dd78fb25ac780a0a8'
+curl --location 'http://localhost:8000/api/getOrder/66c4db8dd78fb25ac780a0a8' \
+--header 'collection: store'
 ```
 - Add new order:
 ```
 curl --location 'http://localhost:8000/api/addOrder' \
 --header 'Content-Type: application/json' \
+--header 'collection: store' \
 --data '{
     "name": "Mary",
     "value": 25.0
@@ -28,6 +31,7 @@ curl --location 'http://localhost:8000/api/addOrder' \
 ```
 curl --location 'http://localhost:8000/api/chargeBackOrder' \
 --header 'Content-Type: application/json' \
+--header 'collection: store' \
 --data '{
     "name": "Mary",
     "value": -25.0
@@ -36,7 +40,8 @@ curl --location 'http://localhost:8000/api/chargeBackOrder' \
 *if Value is "0" (zero), then the value to charge back will be the same as the last one;
 - Validate all transactions:
 ```
-curl --location 'http://localhost:8000/api/validateOrders'
+curl --location 'http://localhost:8000/api/validateOrders' \
+--header 'collection: store' \
 ```
 
 ## Tech
