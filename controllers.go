@@ -21,7 +21,13 @@ type Response struct {
 }
 
 func getAllOrders(w http.ResponseWriter, r *http.Request) {
-	collectionName := os.Getenv("COLLECTION_NAME")
+	// Retrieve the specific header value
+	collectionName := r.Header.Get("collection")
+
+	// Check if the header is present
+	if collectionName == "" {
+		collectionName = os.Getenv("COLLECTION_NAME")
+	}
 	w.Header().Set("Content-Type", "application/json")
 	// Get a handle for your collection
 	orderCollection := Db.Database("ffc_database").Collection(collectionName)
@@ -39,7 +45,13 @@ func getAllOrders(w http.ResponseWriter, r *http.Request) {
 }
 
 func getOrder(w http.ResponseWriter, r *http.Request) {
-	collectionName := os.Getenv("COLLECTION_NAME")
+	// Retrieve the specific header value
+	collectionName := r.Header.Get("collection")
+
+	// Check if the header is present
+	if collectionName == "" {
+		collectionName = os.Getenv("COLLECTION_NAME")
+	}
 	w.Header().Set("Content-Type", "application/json")
 	params := mux.Vars(r)["id"]                   //get Parameter value as string
 	_id, err := primitive.ObjectIDFromHex(params) // convert params to //mongodb Hex ID
@@ -57,8 +69,7 @@ func getOrder(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(&result) // return order
 }
 
-func createOrder(prevOrder bson.M, order OrderSchema) Order {
-	store := os.Getenv("COLLECTION_NAME")
+func createOrder(prevOrder bson.M, order OrderSchema, store string) Order {
 	newOrder := Order{
 		Store:    store + "_" + time.Now().Format("20060102"),
 		Name:     order.Name,
@@ -71,8 +82,7 @@ func createOrder(prevOrder bson.M, order OrderSchema) Order {
 	return newOrder
 }
 
-func getLatestOrder() bson.M {
-	collectionName := os.Getenv("COLLECTION_NAME")
+func getLatestOrder(collectionName string) bson.M {
 	// Get a handle for your collection
 	orderCollection := db().Database("ffc_database").Collection(collectionName)
 	// Define an options object to sort by timestamp in descending order
@@ -95,12 +105,19 @@ func addOrder(w http.ResponseWriter, r *http.Request) {
 		fmt.Print(err)
 	}
 
-	collectionName := os.Getenv("COLLECTION_NAME")
+	// Retrieve the specific header value
+	collectionName := r.Header.Get("collection")
+
+	// Check if the header is present
+	if collectionName == "" {
+		collectionName = os.Getenv("COLLECTION_NAME")
+	}
+
 	// Get a handle for your collection
 	orderCollection := db().Database("ffc_database").Collection(collectionName)
-	latestOrder := getLatestOrder()
+	latestOrder := getLatestOrder(collectionName)
 
-	newOrder := createOrder(latestOrder, order)
+	newOrder := createOrder(latestOrder, order, collectionName)
 	insertResult, err := orderCollection.InsertOne(context.TODO(), newOrder)
 	if err != nil {
 		log.Fatal(err)
@@ -116,16 +133,23 @@ func chargeBackOrder(w http.ResponseWriter, r *http.Request) {
 		fmt.Print(err)
 	}
 
-	collectionName := os.Getenv("COLLECTION_NAME")
+	// Retrieve the specific header value
+	collectionName := r.Header.Get("collection")
+
+	// Check if the header is present
+	if collectionName == "" {
+		collectionName = os.Getenv("COLLECTION_NAME")
+	}
+
 	// Get a handle for your collection
 	orderCollection := db().Database("ffc_database").Collection(collectionName)
-	latestOrder := getLatestOrder()
+	latestOrder := getLatestOrder(collectionName)
 
 	if order.Value > 0 {
 		order.Value = latestOrder["value"].(float64) * -1
 	}
 
-	newOrder := createOrder(latestOrder, order)
+	newOrder := createOrder(latestOrder, order, collectionName)
 	insertResult, err := orderCollection.InsertOne(context.TODO(), newOrder)
 	if err != nil {
 		log.Fatal(err)
@@ -135,7 +159,13 @@ func chargeBackOrder(w http.ResponseWriter, r *http.Request) {
 }
 
 func isValidOrders(w http.ResponseWriter, r *http.Request) {
-	collectionName := os.Getenv("COLLECTION_NAME")
+	// Retrieve the specific header value
+	collectionName := r.Header.Get("collection")
+
+	// Check if the header is present
+	if collectionName == "" {
+		collectionName = os.Getenv("COLLECTION_NAME")
+	}
 	w.Header().Set("Content-Type", "application/json")
 	// Get a handle for your collection
 	orderCollection := Db.Database("ffc_database").Collection(collectionName)
