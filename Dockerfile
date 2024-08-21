@@ -12,7 +12,7 @@ RUN go mod download
 
 # Copy the source code into the container
 COPY . .
-COPY .env /app/main/
+# COPY .env /app/main/
 
 RUN ls
 
@@ -25,17 +25,11 @@ FROM debian:bookworm-slim
 # Install required packages
 RUN apt-get update && apt-get install -y ca-certificates && apt-get clean
 
-# Update some libs
-# RUN sudo apt update
-# RUN sudo apt install libc6
-# RUN sudo apt install glibc-source
-
 # Copy the binary to the production image from the build stage
-COPY --from=build /app/main /app/main
+COPY --from=build /app/main ./
+
+# Command to run the executable
+ENTRYPOINT [ "./main" ]
 
 # Expose port 8000 for the Go app
 EXPOSE 8000
-
-# Command to run the executable
-RUN chmod +x /app/main
-CMD ["./app/main"]

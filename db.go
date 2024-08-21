@@ -25,13 +25,10 @@ type Order struct {
 
 func db() *mongo.Client {
 	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file")
-	}
 
 	collectionName := os.Getenv("COLLECTION_NAME")
 
-	clientOptions := options.Client().ApplyURI("mongodb://admin:password@localhost:27017") // Connect to //MongoDB
+	clientOptions := options.Client().ApplyURI("mongodb://admin:password@ffc-mongo:27017") // Connect to //MongoDB
 	client, err := mongo.Connect(context.TODO(), clientOptions)
 	if err != nil {
 		log.Fatal(err)

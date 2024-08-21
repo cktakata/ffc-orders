@@ -2,14 +2,18 @@ version: '3'
 services:
   ffc-mongo:
     image: mongo:latest
+    container_name: fcc-mongo
     environment:
       - MONGO_INITDB_ROOT_USERNAME=admin
       - MONGO_INITDB_ROOT_PASSWORD=password
+      - MONGO_INITDB_DATABASE=ffc_database
     volumes:
-      - /data/
+      - mongo-data:/data/db
       - ./mongo-seed:/docker-entrypoint-initdb.d
     ports:
       - '27017:27017'
+    networks:
+      - ffc_internal
   ffc-app:
     build:
       context: .
@@ -20,12 +24,13 @@ services:
     depends_on:
       - ffc-mongo
     environment:
-      - MONGO_URI=mongodb://admin:password@mongo:27017
+      - MONGO_URI=mongodb://admin:password@ffc-mongo:27017
+      - COLLECTION_NAME=store
     networks:
       - ffc_internal
+volumes:
+  mongo-data:
 networks:
   ffc_internal:
     driver: 
       bridge
-    external:
-      name: ffc_internal
