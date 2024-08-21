@@ -11,6 +11,10 @@ func main() {
 	Db = db()
 	route := mux.NewRouter()
 	s := route.PathPrefix("/api").Subrouter() //Base Path
+
+	// Apply the CORS middleware
+	http.Handle("/", CORS(route))
+
 	// Routes
 	s.HandleFunc("/getAllOrders", getAllOrders).Methods("GET")
 	s.HandleFunc("/getOrder/{id}", getOrder).Methods("GET")
