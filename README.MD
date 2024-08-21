@@ -1,7 +1,7 @@
 # Fast Food Chat
 ## _Orders Module_
 
-Fast Food Chat is the trademark of the portal to be used as a main access to use our chat robot for attendance client's orders.
+Fast Food Chat is the portal's trademark, serving as the primary access point for using our chatbot to manage client orders.
 
 This _Orders Module_ will be used to manage orders from each client at each store, using Go as the programming language, MongoDB for data storage, and blockchain technology to ensure transaction trustworthiness.
 
